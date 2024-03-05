@@ -61,22 +61,25 @@ The Wishlist Recorder system utilizes the following data structure:
 ## Installation
 1. Clone the repository
    
-   
+   ```
    git clone https://github.com/Kevinsweep/wishlist.git
+   ```
    
 2. Install dependencies
 
-   
+   ```
    npm install
+   ```
    
 4. Start the IC local development environment
 
-   
+   ```
    dfx start --background --clean
+   ```
    
 5. Deploy the canisters to the local development environment
 
-   
+   ```
    dfx deploy
    ```
-```
+
