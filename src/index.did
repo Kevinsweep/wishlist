@@ -1,0 +1,33 @@
+type Wish = record {
+  id : text;
+  status : bool;
+  createdAt : nat64;
+  updatedAt : opt nat64;
+  itemName : text;
+  priority : bool;
+  itemAmount : float64;
+  itemPrice : float64;
+  totalPrice : float64;
+};
+type WishPayload = record {
+  status : bool;
+  itemName : text;
+  priority : bool;
+  itemAmount : float64;
+  itemPrice : float64;
+  totalPrice : float64;
+};
+type _AzleResult = variant { Ok : Wish; Err : text };
+type _AzleResult_1 = variant { Ok : vec Wish; Err : text };
+service : () -> {
+  addWish : (WishPayload) -> (_AzleResult);
+  deleteWish : (text) -> (_AzleResult);
+  getCompleteWish : () -> (_AzleResult_1) query;
+  getIncompleteWish : () -> (_AzleResult_1) query;
+  getPriorityWish : () -> (_AzleResult_1) query;
+  getWishById : (text) -> (_AzleResult) query;
+  getWishByItemPrice : (float64, float64) -> (_AzleResult_1) query;
+  getWishByTotalPrice : (float64, float64) -> (_AzleResult_1) query;
+  getWishList : () -> (_AzleResult_1) query;
+  updateWish : (text, WishPayload) -> (_AzleResult);
+}
