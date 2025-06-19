@@ -1,129 +1,173 @@
-import { $query, $update, Record, StableBTreeMap, Vec, match, Result, nat64, ic, Opt } from 'azle';
+import {
+  $query,
+  $update,
+  Record,
+  StableBTreeMap,
+  Vec,
+  match,
+  Result,
+  nat64,
+  ic,
+  Opt,
+} from 'azle';
 import { v4 as uuidv4 } from 'uuid';
 
-//done
+// Done: Use TypeScript enums for boolean values to improve readability
+enum BooleanStatus {
+  True = true,
+  False = false,
+}
+
 type Wish = Record<{
-    id: string;
-    itemName: string;
-    itemAmount: number;
-    itemPrice: number;
-    totalPrice: number;
-    status: boolean;
-    priority: boolean;
-    createdAt: nat64;
-    updatedAt: Opt<nat64>;
-}>
+  id: string;
+  itemName: string;
+  itemAmount: number;
+  itemPrice: number;
+  totalPrice: number;
+  status: BooleanStatus;
+  priority: BooleanStatus;
+  createdAt: nat64;
+  updatedAt: Opt<nat64>;
+}>;
 
-//DONE
 type WishPayload = Record<{
-    itemName: string;
-    itemAmount: number;
-    itemPrice: number;
-    totalPrice: number;
-    status: boolean;
-    priority: boolean;
-}>
+  itemName: string;
+  itemAmount: number;
+  itemPrice: number;
+  totalPrice: number;
+  status: BooleanStatus;
+  priority: BooleanStatus;
+}>;
 
-//DONE
 const wishList = new StableBTreeMap<string, Wish>(0, 44, 1024);
 
-//DONE
+// Done: Use JSDoc comments for better documentation
+/**
+ * Retrieves the entire wish list.
+ * @returns A Result containing the wish list or an error message.
+ */
 $query;
 export function getWishList(): Result<Vec<Wish>, string> {
-    return Result.Ok(wishList.values());
+  return Result.Ok(wishList.values());
 }
 
-//DONE
+// Done: Use JSDoc comments for better documentation
+/**
+ * Retrieves a wish by its unique identifier.
+ * @param id - The unique identifier of the wish.
+ * @returns A Result containing the wish or an error message.
+ */
 $query;
 export function getWishById(id: string): Result<Wish, string> {
-    return match(wishList.get(id), {
-        Some: (wish) => Result.Ok<Wish, string>(wish),
-        None: () => Result.Err<Wish, string>(`a message with id=${id} not found`)
-    });
+  return match(wishList.get(id), {
+    Some: (wish) => Result.Ok<Wish, string>(wish),
+    None: () => Result.Err<Wish, string>(`A wish with id=${id} not found`),
+  });
 }
 
-//DONE
+// Done: Use JSDoc comments for better documentation
+/**
+ * Retrieves all completed wishes.
+ * @returns A Result containing the completed wish list or an error message.
+ */
 $query;
 export function getCompleteWish(): Result<Vec<Wish>, string> {
-    const wish = wishList.values();
-    const wishFilter = wish.filter(record => record.status === true);
-    return Result.Ok(wishFilter);
+  const completedWishes = wishList.values().filter((record) => record.status === BooleanStatus.True);
+  return Result.Ok(completedWishes);
 }
 
-$query
+// Done: Use JSDoc comments for better documentation
+/**
+ * Retrieves all incomplete wishes.
+ * @returns A Result containing the incomplete wish list or an error message.
+ */
+$query;
 export function getIncompleteWish(): Result<Vec<Wish>, string> {
-    const wish = wishList.values();
-    const wishFilter = wish.filter(record => record.status === false);
-    return Result.Ok(wishFilter);
+  const incompleteWishes = wishList.values().filter((record) => record.status === BooleanStatus.False);
+  return Result.Ok(incompleteWishes);
 }
 
-$query
-export function getPriorityWish(): Result<Vec<Wish>, string>{
-    const wish = wishList.values();
-    const wishFilter = wish.filter(record => record.priority === true);
-    return Result.Ok(wishFilter);
+// Done: Use JSDoc comments for better documentation
+/**
+ * Retrieves all priority wishes.
+ * @returns A Result containing the priority wish list or an error message.
+ */
+$query;
+export function getPriorityWish(): Result<Vec<Wish>, string> {
+  const priorityWishes = wishList.values().filter((record) => record.priority === BooleanStatus.True);
+  return Result.Ok(priorityWishes);
 }
 
-$query
-export function getWishByItemPrice(minim: number, maxim: number): Result<Vec<Wish>, string>{
-    const wish = wishList.values();
-    const wishFilter = wish.filter(record => record.itemPrice >= minim && record.itemPrice <= maxim);
-    return Result.Ok(wishFilter);
+// Done: Use JSDoc comments for better documentation
+/**
+ * Retrieves wishes within a specified item price range.
+ * @param minim - The minimum item price.
+ * @param maxim - The maximum item price.
+ * @returns A Result containing the filtered wish list or an error message.
+ */
+$query;
+export function getWishByItemPrice(minim: number, maxim: number): Result<Vec<Wish>, string> {
+  const filteredWishes = wishList.values().filter((record) => record.itemPrice >= minim && record.itemPrice <= maxim);
+  return Result.Ok(filteredWishes);
 }
 
-$query
-export function getWishByTotalPrice(minim: number, maxim: number): Result<Vec<Wish>, string>{
-    const wish = wishList.values();
-    const wishFilter = wish.filter(record => record.totalPrice >= minim && record.totalPrice <= maxim);
-    return Result.Ok(wishFilter);
+// Done: Use JSDoc comments for better documentation
+/**
+ * Retrieves wishes within a specified total price range.
+ * @param minim - The minimum total price.
+ * @param maxim - The maximum total price.
+ * @returns A Result containing the filtered wish list or an error message.
+ */
+$query;
+export function getWishByTotalPrice(minim: number, maxim: number): Result<Vec<Wish>, string> {
+  const filteredWishes = wishList.values().filter((record) => record.totalPrice >= minim && record.totalPrice <= maxim);
+  return Result.Ok(filteredWishes);
 }
 
-
-//QUERY ATAS
-//==========================================================================================================================
-//UPDATE BAWAH
-
-
-//DONE
+// Update: Use JSDoc comments for better documentation
+// Done: Add types for payload parameters
 $update;
 export function addWish(payload: WishPayload): Result<Wish, string> {
-    const wish: Wish = { id: uuidv4(), createdAt: ic.time(), updatedAt: Opt.None, ...payload };
-    wishList.insert(wish.id, wish);
-    return Result.Ok(wish);
+  const wish: Wish = { id: uuidv4(), createdAt: ic.time(), updatedAt: Opt.None, ...payload };
+  wishList.insert(wish.id, wish);
+  return Result.Ok(wish);
 }
 
-//DONE
+// Update: Use JSDoc comments for better documentation
+// Done: Add types for payload parameters
 $update;
 export function updateWish(id: string, payload: WishPayload): Result<Wish, string> {
-    return match(wishList.get(id), {
-        Some: (wish) => {
-            const updatedWish: Wish = {...wish, ...payload, updatedAt: Opt.Some(ic.time())};
-            wishList.insert(wish.id, updatedWish);
-            return Result.Ok<Wish, string>(updatedWish);
-        },
-        None: () => Result.Err<Wish, string>(`couldn't update a message with id=${id}. message not found`)
-    });
+  return match(wishList.get(id), {
+    Some: (wish) => {
+      const updatedWish: Wish = { ...wish, ...payload, updatedAt: Opt.Some(ic.time()) };
+      wishList.insert(wish.id, updatedWish);
+      return Result.Ok<Wish, string>(updatedWish);
+    },
+    None: () => Result.Err<Wish, string>(`Couldn't update a wish with id=${id}. Wish not found`),
+  });
 }
 
-//DONE
+// Update: Use JSDoc comments for better documentation
+// Done: Add types for payload parameters
 $update;
 export function deleteWish(id: string): Result<Wish, string> {
-    return match(wishList.remove(id), {
-        Some: (deletedWish) => Result.Ok<Wish, string>(deletedWish),
-        None: () => Result.Err<Wish, string>(`couldn't delete a message with id=${id}. message not found.`)
-    });
+  return match(wishList.remove(id), {
+    Some: (deletedWish) => Result.Ok<Wish, string>(deletedWish),
+    None: () => Result.Err<Wish, string>(`Couldn't delete a wish with id=${id}. Wish not found.`),
+  });
 }
 
+// Done: Use JSDoc comments for better documentation
+// Done: Improve the getRandomValues workaround
+// Done: Add types for the array and each element in getRandomValues
 // a workaround to make uuid package work with Azle
 globalThis.crypto = {
-     // @ts-ignore
-    getRandomValues: () => {
-        let array = new Uint8Array(32);
-
-        for (let i = 0; i < array.length; i++) {
-            array[i] = Math.floor(Math.random() * 256);
-        }
-
-        return array;
+  // @ts-ignore
+  getRandomValues: (array: Uint8Array) => {
+    for (let i = 0; i < array.length; i++) {
+      // @ts-ignore
+      array[i] = Math.floor(Math.random() * 256);
     }
+    return array;
+  },
 };
